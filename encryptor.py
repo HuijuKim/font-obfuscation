@@ -1,61 +1,103 @@
 import fontforge
 import os
 import time
+import random
 
-def generate_vigenere_pua(base_font_path, keyword):
-    if not os.path.exists(base_font_path): return
-    font = fontforge.open(base_font_path)
-    
-    # 0xE000: Private Use Area (가장 안전한 대역)
-    base_addr = 0xE000 
-    key_len = len(keyword)
-    
-    print(f"--- [비즈네르 PUA] 폰트 생성 시작 (키: {keyword}) ---")
+class AntiLLM:
+    def __init__(self, keyword="ASDFGHJKL"):
+        self.keyword = keyword
+        self.key_len = len(keyword)
+        self.vig_base = 0xE000
+        # 노이즈 대역 (기호 대역을 활용하여 데이터 오염 극대화)
+        self.noise_ranges = list(range(0x2100, 0x214F)) + list(range(0x2190, 0x21FF))
+        self.current_dir = os.path.dirname(os.path.abspath(__file__))
+        self.font_file = "AntiLLM.ttf"
 
-    # ASCII 32(Space)부터 126(~)까지 모두 매핑
-    for code in range(32, 127):
-        for i in range(key_len):
-            try:
-                # 공식: 베이스 + (문자오프셋 * 키길이) + 현재 순서(i)
-                fake_unicode = base_addr + ((code - 32) * key_len) + i
-                
-                font.selection.select(code)
+    def build_font(self, base_font_name="base_font.ttf"):
+        input_path = os.path.join(self.current_dir, base_font_name)
+        output_path = os.path.join(self.current_dir, self.font_file)
+
+        if not os.path.exists(input_path):
+            print(f"❌ 원본 폰트 없음: {input_path}")
+            return False
+
+        try:
+            font = fontforge.open(input_path)
+            
+            # 1. 비즈네르 암호화 글리프 생성 (0xE000 대역)
+            for code in range(32, 127):
+                for i in range(self.key_len):
+                    fake_uni = self.vig_base + ((code - 32) * self.key_len) + i
+                    font.selection.select(code)
+                    font.copy()
+                    font.selection.select(fake_uni)
+                    font.paste()
+
+            # 2. 노이즈 대역 "완전 투명화" (핵심 수정 부분)
+            print(f"{len(self.noise_ranges)}개의 노이즈를 유령 문자로 변환 중...")
+            for uni in self.noise_ranges:
+                # 공백(32)의 모양을 복사하여 기존 기호 모양을 지워버림
+                font.selection.select(32)
                 font.copy()
-                font.selection.select(fake_unicode)
+                if uni not in font:
+                    font.createChar(uni)
+                font.selection.select(uni)
                 font.paste()
-                font[fake_unicode].glyphname = f"v_{code}_{i}"
-            except:
-                continue
+                
+                # 너비와 여백을 0으로 만들어 시각적으로 제거
+                font[uni].width = 0
+                font[uni].left_side_bearing = 0
+                font[uni].right_side_bearing = 0
 
-    new_name = f"AntiLLM_Vig_Final_K{int(time.time()%100)}"
-    font.fontname = font.familyname = font.fullname = new_name
-    font.appendSFNTName('English (US)', 1, new_name)
-    font.appendSFNTName('English (US)', 4, new_name)
+            # 3. 메타데이터 설정 및 저장
+            ts = int(time.time() % 100)
+            font_name = f"AntiLLM_V4_{ts}"
+            font.fontname = font.familyname = font.fullname = font_name
+            font.generate(output_path)
+            
+            print(f"폰트 생성 완료: {output_path}")
+            return font_name
+        except Exception as e:
+            print(f"에러: {e}")
+            return False
 
-    font.generate(os.path.join(os.path.dirname(base_font_path), "Vigenere_Final.ttf"))
-    return new_name, base_addr, key_len
+    def encrypt(self, text):
+        res = []
+        for idx, c in enumerate(text):
+            code = ord(c)
+            if code in [10, 13]:
+                res.append(c)
+            elif 32 <= code <= 126:
+                i = idx % self.key_len
+                res.append(chr(self.vig_base + ((code - 32) * self.key_len) + i))
+                # 랜덤 노이즈 1~3개 삽입
+                for _ in range(random.randint(1, 3)):
+                    res.append(chr(random.choice(self.noise_ranges)))
+            else:
+                res.append(c)
+        return "".join(res)
 
-def encrypt_vigenere_final(text, base, key_len):
-    res = []
-    # 모든 문자(공백 포함)에 대해 인덱스를 엄격하게 적용
-    for idx, c in enumerate(text):
-        code = ord(c)
-        if code in [10, 13]: # 개행만 보존
-            res.append(c)
-        elif 32 <= code <= 126:
-            i = idx % key_len
-            fake_code = base + ((code - 32) * key_len) + i
-            res.append(chr(fake_code))
-        else:
-            res.append(c)
-    return "".join(res)
+    def decrypt(self, encrypted_text):
+        noise_set = set(chr(n) for n in self.noise_ranges)
+        filtered = [c for c in encrypted_text if c not in noise_set]
+        res = []
+        for idx, c in enumerate(filtered):
+            code = ord(c)
+            if self.vig_base <= code < self.vig_base + (95 * self.key_len):
+                i = idx % self.key_len
+                original_ascii = (code - self.vig_base - i) // self.key_len + 32
+                res.append(chr(original_ascii))
+            else:
+                res.append(c)
+        return "".join(res)
 
 if __name__ == "__main__":
-    path = r"C:\path\to\base_font.ttf"
-    kw = "ASDFGHJKL"
-    name, b_addr, k_l = generate_vigenere_pua(path, kw)
+    system = AntiLLM(keyword="ASDFGHJKL")
+    f_name = system.build_font("base_font.ttf")
     
-    # 테스트 코드
-    code_to_encrypt = 'print("Hello, Vigenere!")\nif True:\n    pass'
-    print(f"\n[설치 폰트명: {name}]\n")
-    print(encrypt_vigenere_final(code_to_encrypt, b_addr, k_l))
+    if f_name:
+        original = 'print("Perfect Stealth Mode")'
+        encrypted = system.encrypt(original)
+        print(f"\n폰트 이름: {f_name}")
+        print(f"\n[암호화 텍스트]\n{encrypted}")
+        print(f"\n[복호화 검증] {'성공' if original == system.decrypt(encrypted) else '❌ 실패'}")
