@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>CSE201 과제 보안 뷰어</title>
+    <style>
+        @font-face {
+            font-family: 'AntiLLM';
+            /* 서버에 있는 폰트 경로 (학생에게 ttf를 직접 주지 않음) */
+            src: url('./AntiLLM_Ultimate_V4.ttf') format('truetype');
+        }
+        body { background-color: #1e1e1e; color: #d4d4d4; font-family: sans-serif; }
+        .container { max-width: 900px; margin: 50px auto; text-align: center; }
+        /* 캔버스가 텍스트처럼 보이지 않게 처리 */
+        canvas {
+            border: 1px solid #444;
+            background-color: #252526;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            cursor: default;
+        }
+        .controls { margin-bottom: 20px; }
+    </style>
+</head>
+<body oncontextmenu="return false"> <div class="container">
+        <h2>Assignment #1 (Secure View)</h2>
+        <p>본 화면은 보안을 위해 복사 및 드래그가 차단되어 있습니다.</p>
+        
+        <div class="controls">
+            <button onclick="renderText()">과제 불러오기</button>
+        </div>
+
+        <canvas id="secureCanvas"></canvas>
+    </div>
+
+    <script>
+        // 관리자가 암호화한 텍스트 데이터 (실제로는 DB나 파일에서 가져옴)
+        const encryptedData = `⇊⇟⇩↦↽↘⅀ℾℌ↞ℇ⇨ℸ⇆ℚ№ℇ⇐⇙⇅←↫↽⇗⇁℄↪⇺ℷℐℰℽ⇱℁ℝ⇹⇄⇫⇾↽⇵⇮℅⇇ℌ↶℃⇩⇁↮ℶ℺↪⇦↖↧ⅆ⇧⇡ℬ⇁↜℄⅌
+⅁⇚⇵ℐ↹Ⅎ⇎↽℡↿⇄ⅅⅈ↤⇭↰ℌ⇸↾ℼ↮⇬↽ℎⅎℹÅ↱⇐⇻⇕ℷ⇝⇋↱⇢⇕⇦⇱⇼℄↸℺↵←↱ℶ⇑ℒ
+ℷ⇢⇷↷℅↖↱↜⇣⇋ℒ⇸⇚⇢↔⇕↱⇺Ⅎ℆⅌⅁ℜ⇶↩↵⇧⇺↜↺⇓⇮℟⇌℻⇐⇄℈⇱⅍⅄ⅅ↛↱⇹↲Kℴ⇓⇙↜ℤ⇪↭↱ℎ
+↬⇏ℍ⇶℆ℱ↩↔↟⅊⇋⇽↻⇼℗↡ℊ↟℠⇚↑⇖℺⇎ℤ↳ℤ⇱↲⇪℠⇽↕ⅇ↽⇫↟⅁
+↕⇄⇴↚⇚⇰↜⇣⇽ⅈ↶ℾℽ↰↫⇡ℽ⇮⇒℅⇉⇡↻⇛⇺⇥ℰ⇕ℒ™ℐ℧℔⇧⇯ℾℒℌ↬ℷ⇬⇌↵⇄↺⇴ℍ⇢℟↝℈↞ℝ⇇⇷↚↕ℓ℃℺⇢
+
+℮Å⇆⇭⇀ℸℐ⇂↼ⅇ⇥↺↝℆⇤ℏ⇫ℋ↧℗↟⇥⇟↱℈ℒ⇮ℶ⇼⇪℃℠⅄ℯ⇗™℩ℎ⇐ℒⅇ↶℅⇲⅁↜℮ℼℑℵℳ℘⇰ℑ⇏℆ℾℙ⇐↥℅Ⅎ℧↔⇥⇝⅋℁⇜⇻⇶⅀℉⇬↟ℐ←↘⇴⇯℗↨↹↶⇫ℿ℁ℬ℡⇋↵℉⇣⇕↻ℙ
+`;
+
+        function renderText() {
+            const canvas = document.getElementById('secureCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 폰트가 로드될 때까지 대기
+            document.fonts.load('16px AntiLLM').then(() => {
+                const lines = encryptedData.split('\n');
+                const fontSize = 18;
+                const lineHeight = 25;
+                
+                // 캔버스 크기 설정
+                canvas.width = 800;
+                canvas.height = lines.length * lineHeight + 40;
+
+                // 배경 칠하기
+                ctx.fillStyle = '#252526';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // 텍스트 그리기
+                ctx.font = `${fontSize}px AntiLLM`;
+                ctx.fillStyle = '#d4d4d4';
+                ctx.textBaseline = 'top';
+
+                lines.forEach((line, index) => {
+                    ctx.fillText(line, 20, 20 + (index * lineHeight));
+                });
+
+                console.log("보안 렌더링 완료");
+            });
+        }
+    </script>
+</body>
+</html>
