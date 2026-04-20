@@ -48,6 +48,8 @@ class AntiLLM:
                 font[uni].width = 0
                 font[uni].left_side_bearing = 0
                 font[uni].right_side_bearing = 0
+                
+                font[uni].vwidth = 0
 
             # 3. 메타데이터 설정 및 저장
             ts = int(time.time() % 100)
