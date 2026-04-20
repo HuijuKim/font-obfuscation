@@ -81,12 +81,15 @@ class AntiLLM:
         noise_set = set(chr(n) for n in self.noise_ranges)
         filtered = [c for c in encrypted_text if c not in noise_set]
         res = []
-        for idx, c in enumerate(filtered):
+        
+        actual_idx = 0  # 수동 인덱스 도입
+        for c in filtered:
             code = ord(c)
             if self.vig_base <= code < self.vig_base + (95 * self.key_len):
-                i = idx % self.key_len
+                i = actual_idx % self.key_len # 암호문일 때만 순서 계산
                 original_ascii = (code - self.vig_base - i) // self.key_len + 32
-                res.append(chr(original_ascii))
+                res.append(chr(int(original_ascii)))
+                actual_idx += 1
             else:
                 res.append(c)
         return "".join(res)
