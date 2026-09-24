@@ -3,10 +3,10 @@ import os
 import sys
 import time
 
-from endec import AntiLLMTool
+from endec import ObfuscationTool
 
 # 사용법: ffpython build_font.py <원본 폰트.ttf> [출력 폰트.ttf]
-# 키 길이, PUA 시작점, 노이즈 대역은 endec.py의 AntiLLMTool과 같은 값을 써야 한다.
+# 키 길이, PUA 시작점, 노이즈 대역은 endec.py의 ObfuscationTool과 같은 값을 써야 한다.
 
 def build_font(input_path, output_path, tool):
     if not os.path.exists(input_path):
@@ -46,7 +46,7 @@ def build_font(input_path, output_path, tool):
 
         # 3. 메타데이터 설정 및 저장 (중복 방지용 타임스탬프)
         ts = int(time.time() % 100)
-        font_name = f"AntiLLM_V4_{ts}"
+        font_name = f"FontObfuscation_{ts}"
         font.fontname = font.familyname = font.fullname = font_name
         font.generate(output_path)
 
@@ -60,6 +60,6 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("사용법: ffpython build_font.py <원본 폰트.ttf> [출력 폰트.ttf]")
         sys.exit(1)
-    output = sys.argv[2] if len(sys.argv) > 2 else "AntiLLM.ttf"
+    output = sys.argv[2] if len(sys.argv) > 2 else "FontObfuscation.ttf"
     # FontForge는 한글 등이 섞인 상대 경로를 열지 못하므로 절대 경로로 넘긴다
-    build_font(os.path.abspath(sys.argv[1]), os.path.abspath(output), AntiLLMTool(keyword="ASDFGHJKL"))
+    build_font(os.path.abspath(sys.argv[1]), os.path.abspath(output), ObfuscationTool(keyword="ASDFGHJKL"))

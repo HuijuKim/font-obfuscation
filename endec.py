@@ -1,7 +1,7 @@
 import random
 import sys
 
-class AntiLLMTool:
+class ObfuscationTool:
     def __init__(self, keyword="ASDFGHJKL"):
         self.keyword = keyword
         self.key_len = len(keyword)
@@ -39,7 +39,7 @@ class AntiLLMTool:
         return "".join(res)
 
 if __name__ == "__main__":
-    tool = AntiLLMTool(keyword="ASDFGHJKL")
+    tool = ObfuscationTool(keyword="ASDFGHJKL")
     print("1: 암호화 / 2: 복호화")
     choice = input("선택: ")
     if choice in ["1", "2"]:

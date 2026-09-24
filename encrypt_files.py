@@ -1,12 +1,12 @@
 import os
 import sys
 
-from endec import AntiLLMTool
+from endec import ObfuscationTool
 
 # 사용법: python encrypt_files.py 파일1 [파일2 ...]
 # 각 파일의 암호화본을 같은 폴더에 "이름_enc.확장자"로 저장한다.
 
-tool = AntiLLMTool(keyword="ASDFGHJKL")
+tool = ObfuscationTool(keyword="ASDFGHJKL")
 
 if len(sys.argv) < 2:
     print("사용법: python encrypt_files.py 파일1 [파일2 ...]")

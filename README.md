@@ -1,11 +1,11 @@
-# AntiLLM
+# font-obfuscation
 
 사람 눈에는 평범한 코드로 보이지만, LLM이 파일을 읽으면 의미 없는 문자열이 되는 텍스트를 만드는 실험입니다.
 파일에 저장된 유니코드 값과 폰트가 화면에 그려 주는 모양이 서로 달라도 된다는 점을 이용합니다.
 
 2026년 봄 학기 프로그래밍 언어(CSE307) 과목 프로젝트로 만들었습니다.
 
-![같은 암호문 파일을 일반 폰트와 AntiLLM 폰트로 열었을 때](docs/demo.png)
+![같은 암호문 파일을 일반 폰트와 난독화 폰트로 열었을 때](docs/demo.png)
 
 ## 아이디어
 
@@ -58,7 +58,7 @@ FontForge로 원본 폰트를 바탕으로 새 폰트를 만듭니다.
 
 | 파일 | 설명 |
 | --- | --- |
-| `build_font.py` | 원본 폰트로 `AntiLLM.ttf`를 만드는 FontForge 스크립트 |
+| `build_font.py` | 원본 폰트로 `FontObfuscation.ttf`를 만드는 FontForge 스크립트 |
 | `endec.py` | 암호화/복호화 로직과 대화형 도구 |
 | `encrypt_files.py` | 여러 파일을 한 번에 암호화 |
 | `viewer.html` | 암호문을 캔버스에 그리고 복사와 우클릭을 막는 보안 뷰어 시안 |
@@ -76,7 +76,7 @@ FontForge로 원본 폰트를 바탕으로 새 폰트를 만듭니다.
 "C:\Program Files\FontForgeBuilds\bin\ffpython.exe" build_font.py <원본 폰트.ttf> [출력 파일.ttf]
 ```
 
-출력 파일을 지정하지 않으면 `AntiLLM.ttf`가 생성됩니다. 폰트를 설치한 뒤 에디터 폰트를 출력된 폰트 이름(`AntiLLM_V4_숫자`)으로 바꿉니다.
+출력 파일을 지정하지 않으면 `FontObfuscation.ttf`가 생성됩니다. 폰트를 설치한 뒤 에디터 폰트를 출력된 폰트 이름(`FontObfuscation_숫자`)으로 바꿉니다.
 폰트 이름 끝에 생성 시각이 붙으므로, 다시 만들어도 Windows에 캐시된 예전 폰트와 섞이지 않습니다.
 
 ### 2. 텍스트 암호화
@@ -91,7 +91,7 @@ python encrypt_files.py hw1.md problem1.ml
 
 ### 3. 보안 뷰어
 
-`viewer.html`과 `AntiLLM.ttf`를 같은 폴더에 두고 로컬 서버로 엽니다.
+`viewer.html`과 `FontObfuscation.ttf`를 같은 폴더에 두고 로컬 서버로 엽니다.
 
 ```
 python -m http.server
@@ -119,6 +119,7 @@ python -m http.server
 ## 개발 과정
 
 커밋 기록이 실제 버전 순서를 따릅니다. 커밋의 작성 날짜(author date)는 원래 파일을 수정한 시각입니다.
+프로젝트 당시 이름은 AntiLLM이었고, 과거 커밋의 코드에는 그 이름이 그대로 남아 있습니다.
 
 - **v1 (4/9)**: U+0500 부근으로 오프셋만큼 옮기는 단순 치환. 한 글자가 코드포인트 하나에 대응해서 빈도 분석에 약했습니다.
 - **v2 (4/9)**: PUA로 옮기고 위치에 따라 9가지 코드포인트를 돌려 쓰는 방식.

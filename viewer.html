@@ -5,9 +5,9 @@
     <title>CSE201 과제 보안 뷰어</title>
     <style>
         @font-face {
-            font-family: 'AntiLLM';
+            font-family: 'FontObfuscation';
             /* 서버에 있는 폰트 경로 (학생에게 ttf를 직접 주지 않음) */
-            src: url('./AntiLLM.ttf') format('truetype');
+            src: url('./FontObfuscation.ttf') format('truetype');
         }
         body { background-color: #1e1e1e; color: #d4d4d4; font-family: sans-serif; }
         .container { max-width: 900px; margin: 50px auto; text-align: center; }
@@ -48,7 +48,7 @@
             const ctx = canvas.getContext('2d');
             
             // 폰트가 로드될 때까지 대기
-            document.fonts.load('16px AntiLLM').then(() => {
+            document.fonts.load('16px FontObfuscation').then(() => {
                 const lines = encryptedData.split('\n');
                 const fontSize = 18;
                 const lineHeight = 25;
@@ -62,7 +62,7 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 // 텍스트 그리기
-                ctx.font = `${fontSize}px AntiLLM`;
+                ctx.font = `${fontSize}px FontObfuscation`;
                 ctx.fillStyle = '#d4d4d4';
                 ctx.textBaseline = 'top';
 
