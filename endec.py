@@ -27,14 +27,13 @@ class AntiLLMTool:
     def decrypt(self, encrypted_text):
         filtered = [c for c in encrypted_text if c not in self.noise_set]
         res = []
-        actual_idx = 0
         for c in filtered:
             code = ord(c)
             if self.vig_base <= code < self.vig_base + (95 * self.key_len):
-                i = actual_idx % self.key_len
-                original_ascii = (code - self.vig_base - i) // self.key_len + 32
-                res.append(chr(int(original_ascii)))
-                actual_idx += 1
+                # 키 순번(0 ~ key_len-1)은 몫에 영향을 주지 않으므로 순번을 몰라도 복호화된다.
+                # 순번을 세는 방식이 암호화 쪽과 다르면 글자가 한 칸씩 밀리던 문제를 없앤다.
+                original_ascii = (code - self.vig_base) // self.key_len + 32
+                res.append(chr(original_ascii))
             else:
                 res.append(c)
         return "".join(res)
